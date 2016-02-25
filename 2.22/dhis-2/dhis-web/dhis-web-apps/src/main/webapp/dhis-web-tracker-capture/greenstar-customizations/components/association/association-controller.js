@@ -11,16 +11,13 @@ trackerCapture.controller('EventToTEIAssociations',
 
         $scope.teiAttributesMap = [];
         $scope.trackedEntityMap = [];
-        $scope.onHold= false;
 
         var contextMenu =new contextMenoo([{
             text:"Delete",
             id:"oo-delete",
             icon:"greenstar-customizations/resources/img/icons/delete.png"
         }]);
-        $scope.$on('hideAllWidgets', function(event, args) {
-            $scope.onHold = true;
-        });
+
         $scope.$on('association-widget', function refresh(event, args) {
 
             $scope.TEtoEventTEIMap = [];

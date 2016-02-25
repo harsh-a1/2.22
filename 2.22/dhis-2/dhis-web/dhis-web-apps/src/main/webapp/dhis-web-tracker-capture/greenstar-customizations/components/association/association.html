@@ -17,9 +17,9 @@
         </span>
     </div>
     <div ng-show="associationWidget.expand" class="panel-body dashboard-element-container">
-<div ng-if="onHold">
-    Please complete Registration.
-</div>
+        <div ng-if="onHold">
+            {{'complete_registration' | translate}}
+        </div>
         <div ng-show="selectedEvent && !onHold" class="widgetDiv">
             <table class="table table-striped dhis2-table-hover table-bordered">
                <tr><th>#</th>
