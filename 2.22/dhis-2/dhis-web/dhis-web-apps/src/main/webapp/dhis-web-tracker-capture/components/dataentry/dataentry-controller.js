@@ -1,7 +1,7 @@
 /* global angular, trackerCapture */
 
 trackerCapture.controller('DataEntryController',
-        function ($rootScope,
+        function ($rootScope,associationService,
                 $scope,
                 $modal,
                 $filter,

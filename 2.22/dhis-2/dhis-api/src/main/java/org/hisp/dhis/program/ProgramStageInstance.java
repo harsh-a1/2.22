@@ -35,10 +35,15 @@ import org.hisp.dhis.message.MessageConversation;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.sms.outbound.OutboundSms;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
+import org.hisp.dhis.trackedentity.TrackedEntityInstance;
+
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author Abyot Asalefew
@@ -75,6 +80,8 @@ public class ProgramStageInstance
     private String completedBy;
 
     private Date completedDate;
+    // association between event and list of tracked entity instances
+    private Set<TrackedEntityInstance> programStageInstanceMembers = new HashSet<>();
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -94,7 +101,16 @@ public class ProgramStageInstance
     // -------------------------------------------------------------------------
     // Getters and setters
     // -------------------------------------------------------------------------
-
+    public Set<TrackedEntityInstance> getProgramStageInstanceMembers()
+    {
+         return programStageInstanceMembers;
+    }
+    
+    public void setProgramStageInstanceMembers( Set<TrackedEntityInstance> programStageInstanceMembers )
+      {
+        this.programStageInstanceMembers = programStageInstanceMembers;
+    }
+    
     public ProgramInstance getProgramInstance()
     {
         return programInstance;
