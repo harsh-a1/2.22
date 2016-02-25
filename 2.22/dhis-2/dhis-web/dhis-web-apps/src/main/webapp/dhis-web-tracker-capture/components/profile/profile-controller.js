@@ -9,7 +9,7 @@ trackerCapture.controller('ProfileController',
     $scope.editingDisabled = true;
     $scope.enrollmentEditing = false;
     $scope.widget = 'PROFILE';
-    
+            $rootScope.onHold = false;
     //listen for the selected entity
     var selections = {};
     $scope.$on('dashboardWidgets', function(event, args) {        
@@ -65,5 +65,37 @@ trackerCapture.controller('ProfileController',
         $timeout(function() { 
             $rootScope.$broadcast('registrationWidget', {registrationMode: 'PROFILE', selectedTei: $scope.selectedTei, enrollment: $scope.selectedEnrollment});
         }, 200);
-    };  
-});
+    };
+            if ($scope.selectedTei){
+                $rootScope.onHold = false;
+                listenToBroadCast()
+            }else{
+                $rootScope.onHold = true;
+                broadcast("profileWidgetAdd");
+            }
+
+            $scope.addTEI = function () {
+                broadcast("registrationWidget", "REGISTRATION");
+                $rootScope.onHold = true;
+
+                $scope.teiOriginal = angular.copy($scope.selectedTei);
+                $scope.editingDisabled = false;
+                $rootScope.profileWidget.expand = true;
+            };
+
+            function broadcast(recipient, mode) {
+                $timeout(function () {
+                    $rootScope.$broadcast(recipient, {
+                        registrationMode: mode,
+                        selectedTei: $scope.selectedTei,
+                        enrollment: $scope.selectedEnrollment
+                    });
+                }, 100);
+            }
+
+            $scope.$on('profileWidgetAdd', function() {
+                $scope.dashboardReady = true;
+                $scope.addTEI();
+            });
+
+        });
