@@ -624,6 +624,9 @@ trackerCapture.controller('DataEntryController',
                 $scope.currentEvent = null;
                 $scope.currentElement = {id: '', saved: false};
                 $scope.showDataEntryDiv = !$scope.showDataEntryDiv;
+                $timeout(function () {
+                    $rootScope.$broadcast('association-widget', {event : null, show :false});
+                });
             }
             else {
                 $scope.currentElement = {};                
@@ -651,7 +654,9 @@ trackerCapture.controller('DataEntryController',
                         $scope.currentEvent.notes = orderByFilter($scope.currentEvent.notes, '-storedDate');
                     }
                 }
-
+                $timeout(function () {
+                    $rootScope.$broadcast('association-widget', {event : $scope.currentEvent , show :true});
+                });
                 $scope.getDataEntryForm();
             }
         }
@@ -1121,6 +1126,9 @@ trackerCapture.controller('DataEntryController',
             trackedEntityInstance: $scope.currentEvent.trackedEntityInstance
         };
 
+        //greenstar
+        e = associationService.addEventMemberIfExist(e,$scope.currentEvent);
+
         if ($scope.currentStage.periodType) {
             e.eventDate = e.dueDate;
         }
@@ -1374,7 +1382,9 @@ trackerCapture.controller('DataEntryController',
         var dhis2Event = EventUtils.reconstruct($scope.currentEvent, $scope.currentStage, $scope.optionSets);
         var dhis2EventToUpdate = angular.copy(dhis2Event);
         dhis2EventToUpdate.dataValues = [];
-        
+
+        //greenstar
+        associationService.addEventMembersToEventAndUpdate(dhis2EventToUpdate,$scope.currentEvent);
         if(dhis2Event.dataValues){
             angular.forEach(dhis2Event.dataValues, function(dataValue){
                 if(dataValue.value && dataValue.value.selections){
