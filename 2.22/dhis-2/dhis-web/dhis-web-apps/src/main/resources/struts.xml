@@ -88,4 +88,9 @@
 		</action>
 	</package>
     
+<package name="dhis-web-excel-import" extends="dhis-web-commons" namespace="/dhis-web-excel-import">
+		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
+			<result name="success" type="redirect">index.html</result>
+		</action>
+    </package>
 </struts>
