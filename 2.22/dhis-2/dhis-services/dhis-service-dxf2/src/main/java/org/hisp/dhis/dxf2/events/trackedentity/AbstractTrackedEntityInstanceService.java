@@ -221,7 +221,7 @@ public abstract class AbstractTrackedEntityInstanceService
 
         if ( organisationUnit == null )
         {
-            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid org unit ID" ) );
+            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid org unit ID: " + trackedEntityInstance.getOrgUnit()) );
             return null;
         }
 
@@ -231,7 +231,7 @@ public abstract class AbstractTrackedEntityInstanceService
 
         if ( trackedEntity == null )
         {
-            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid tracked entity ID" ) );
+            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid tracked entity ID: " + trackedEntityInstance.getTrackedEntity() ) );
             return null;
         }
 
