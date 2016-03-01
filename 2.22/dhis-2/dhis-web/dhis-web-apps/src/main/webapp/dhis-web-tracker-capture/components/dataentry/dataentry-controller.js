@@ -108,6 +108,9 @@ trackerCapture.controller('DataEntryController',
             processRuleEffect(args.event);            
         }
     });
+            $scope.$on('event-updated', function (event, args) {
+               $scope.currentEvent.eventMembers = args.event.eventMembers;
+            });
 
     $scope.showReferral = false;
     //Check if user is allowed to make referrals

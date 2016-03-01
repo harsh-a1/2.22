@@ -136,6 +136,8 @@ trackerCapture.controller('EventToTEIAssociations',
                 if (response.httpStatus == "OK"){
                     $timeout(function () {
                         $rootScope.$broadcast('association-widget', {event : event, show :true});
+                        $rootScope.$broadcast('event-updated', {event : event});
+
                     }, 200);
                 }else{
                     alert("An unexpected thing occurred.");
