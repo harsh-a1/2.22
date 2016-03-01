@@ -65,15 +65,8 @@ trackerCapture
                     return response.data;
                 });
                 return promise;
-            },
-            getProgramStageMetaAttributeValue : function(prstId){
-                var promise = $http.get('../api/programStages/'+prstId+'?fields=attributeValues[attribute[id,name,code],value]').then(function (response) {
-                    return response.data;
-                });
-                return promise;
             }
         }
-
     })
     .service('utilityService', function () {
         return {
@@ -88,13 +81,12 @@ trackerCapture
                 var value = undefined;
                 for (var i=0;i<attributeValues.length;i++){
                     if (attributeValues[i].attribute.code == code){
-                        value =   attributeValues[i].value;
+                        value = attributeValues[i].value;
                     }
                 }
                 return value;
             }
         }
-
     })
 
     .service('associationService', function (AjaxCalls,utilityService,DHIS2EventFactory,$timeout,$rootScope) {

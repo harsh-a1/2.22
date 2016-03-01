@@ -10,6 +10,16 @@
 		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
 			<result name="success" type="redirect">index.html</result>
 		</action>
+
+		<action name="importData" class="org.hisp.dhis.dataimport.action.TrackerDataImportAction">
+			<param name="page">/dhis-web-apps/trackerImport.vm</param>
+			<result name="success" type="velocity">/content.vm</result>
+		</action>
+
+		<action name="aggregateDataImport" class="org.hisp.dhis.dataimport.action.AggregateDataImportAction">
+			<param name="page">/dhis-web-apps/aggregateImport.vm</param>
+			<result name="success" type="velocity">/content.vm</result>
+		</action>
     </package>
     
 	<package name="dhis-web-pivot" extends="dhis-web-commons" namespace="/dhis-web-pivot">
