@@ -1,7 +1,7 @@
 /* global angular, trackerCapture */
 
 trackerCapture.controller('DataEntryController',
-        function ($rootScope,associationService,
+        function ($rootScope,associationService,AjaxCalls,
                 $scope,
                 $modal,
                 $filter,
@@ -1405,7 +1405,10 @@ trackerCapture.controller('DataEntryController',
     };
     
     $scope.completeIncompleteEvent = function (inTableView, outerForm) {
-            
+
+        AjaxCalls.getEventbyId($scope.currentEvent.event).then(function(fetchedEvent){
+
+
         var modalOptions;
         var modalDefaults = {};
         var dhis2Event = $scope.makeDhis2EventToUpdate();        
@@ -1429,15 +1432,27 @@ trackerCapture.controller('DataEntryController',
                         return;
                     }
             }
-            
+
+            var isAssociationMandatory = associationService.associationMandatoryCheck($scope.stagesById[$scope.currentEvent.programStage],fetchedEvent);
+            if (isAssociationMandatory)
+            {
+                var dialogOptions = {
+                    headerText: 'errors',
+                    bodyText: 'please_fix_errors_before_completing',
+                    bodyList: ["Please make associations"]
+                };
+
+                DialogService.showDialog({}, dialogOptions);
+                return;
+            }
             if(angular.isDefined($scope.errorMessages[$scope.currentEvent.event]) && $scope.errorMessages[$scope.currentEvent.event].length > 0) {
                 //There is unresolved program rule errors - show error message.
                 var dialogOptions = {
                     headerText: 'errors',
                     bodyText: 'please_fix_errors_before_completing',
                     bodyList: $scope.errorMessages[$scope.currentEvent.event]
-                };                
-                
+                };
+
                 DialogService.showDialog({}, dialogOptions);
                 
                 return;
@@ -1462,7 +1477,8 @@ trackerCapture.controller('DataEntryController',
                 backToDashboard = true;
             }
             $scope.executeCompleteIncompleteEvent(dhis2Event,backToDashboard);
-        });           
+        });
+        })
     };
     
     $scope.executeCompleteIncompleteEvent = function(dhis2Event, backToDashboard){

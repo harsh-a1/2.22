@@ -65,6 +65,12 @@ trackerCapture
                     return response.data;
                 });
                 return promise;
+            },
+            getProgramStageMetaAttributeValue : function(prstId){
+                var promise = $http.get('../api/programStages/'+prstId+'?fields=attributeValues[attribute[id,name,code],value]').then(function (response) {
+                    return response.data;
+                });
+                return promise;
             }
         }
 
@@ -77,12 +83,21 @@ trackerCapture
                     map[object[i][id]] = object[i];
                 }
                 return map;
+            },
+            extractMetaAttributeValue : function(attributeValues,code){
+                var value = undefined;
+                for (var i=0;i<attributeValues.length;i++){
+                    if (attributeValues[i].attribute.code == code){
+                        value =   attributeValues[i].value;
+                    }
+                }
+                return value;
             }
         }
 
     })
 
-    .service('associationService', function (AjaxCalls,DHIS2EventFactory,$timeout,$rootScope) {
+    .service('associationService', function (AjaxCalls,utilityService,DHIS2EventFactory,$timeout,$rootScope) {
         return {
             extractAllEventMembers: function (events) {
                 var eventMembers = [];
@@ -126,6 +141,14 @@ trackerCapture
                 if (eventFrom.eventMembers)
                     eventTo.eventMembers = eventFrom.eventMembers;
                 return eventTo;
+            },
+            associationMandatoryCheck: function (programStage, event) {
+                if (utilityService.extractMetaAttributeValue(programStage.attributeValues, "Association Mandatory?")) {
+                    if (!event.eventMembers || event.eventMembers.length==0) {
+                        return true
+                    }
+                }
+            return false;
             }
         }
     })
