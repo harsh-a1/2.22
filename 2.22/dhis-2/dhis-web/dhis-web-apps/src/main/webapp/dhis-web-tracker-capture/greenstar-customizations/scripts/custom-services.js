@@ -197,14 +197,14 @@ angular.module('trackerCaptureServices')
                         if (isValidAttribute && isValidProgram)
                         {
                             var custIDPrefix;
-                            if(programUid == "ICtuV7AyvEo"){
+                            if(programUid == "Kl7Q3TQaWmO"){
 
                                 custIDPrefix = "IPCW";
                             }
-                            else if(programUid == "ZxuW2njAWRL"){
+                            else if(programUid == "ukvaaGXPjov"){
                                 custIDPrefix = "IPCS";
                             }
-                            else if(programUid =="icAx8KDM1WT"){
+                            else if(programUid =="pNr1FbGjvnP"){
                                 custIDPrefix = "HSP"
 
                             }
