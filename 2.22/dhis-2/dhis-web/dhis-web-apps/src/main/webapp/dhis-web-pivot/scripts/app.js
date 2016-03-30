@@ -596,6 +596,7 @@ Ext.onReady( function() {
 					{id: finalsStyleConf.default_, text: NS.i18n.by_data_element},
 					{id: 'COUNT', text: NS.i18n.count},
 					{id: 'SUM', text: NS.i18n.sum},
+					{id: 'AVERAGE', text: NS.i18n.average},
 					{id: 'STDDEV', text: NS.i18n.stddev},
 					{id: 'VARIANCE', text: NS.i18n.variance},
 					{id: 'MIN', text: NS.i18n.min},
@@ -2869,7 +2870,13 @@ console.log(table);
             },
             loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
                 this.loadData(data, append);
+
                 this.updateFilter();
             },
             getRecordsByIds: function(ids) {
@@ -3028,7 +3035,13 @@ console.log(table);
             },
             loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
                 this.loadData(data, append);
+
                 this.updateFilter();
             },
             getRecordsByIds: function(ids) {
@@ -3348,7 +3361,13 @@ console.log(table);
 			},
             loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
                 this.loadData(data, append);
+
                 this.updateFilter();
             },
             getRecordsByIds: function(ids) {
@@ -3386,7 +3405,13 @@ console.log(table);
 			},
             loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
                 this.loadData(data, append);
+
                 this.updateFilter();
             },
             getRecordsByIds: function(ids) {
@@ -4464,9 +4489,7 @@ console.log(table);
                             var attributes = (Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || [],
                                 data = ns.core.support.prototype.array.sort(Ext.Array.clean([].concat(elements, attributes))) || [];
 
-                            if (data) {
-                                eventDataItemAvailableStore.loadDataAndUpdate(data);
-                            }
+                            eventDataItemAvailableStore.loadDataAndUpdate(data);
                         }
                     });
                 }
@@ -4708,9 +4731,7 @@ console.log(table);
                     var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
                         data = ns.core.support.prototype.array.sort(indicators);
 
-                    if (data) {
-                        programIndicatorAvailableStore.loadDataAndUpdate(data);
-                    }
+                    programIndicatorAvailableStore.loadDataAndUpdate(data);
                 }
             });
 

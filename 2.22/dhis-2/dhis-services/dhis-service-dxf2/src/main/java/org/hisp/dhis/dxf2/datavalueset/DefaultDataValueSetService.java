@@ -580,7 +580,7 @@ public class DefaultDataValueSetService
         CachingMap<String, Set<DataElementCategoryOptionCombo>> dataElementCategoryOptionComboMap = new CachingMap<>();
         CachingMap<String, Set<DataElementCategoryOptionCombo>> dataElementAttrOptionComboMap = new CachingMap<>();
         CachingMap<String, Boolean> dataElementOrgUnitMap = new CachingMap<>();
-        CachingMap<String, Boolean> dataElementOpenFuturePeriodsMap = new CachingMap<>();
+        CachingMap<String, Period> dataElementLatestFuturePeriodMap = new CachingMap<>();
         CachingMap<String, Boolean> orgUnitInHierarchyMap = new CachingMap<>();
         CachingMap<String, Optional<Set<String>>> dataElementOptionsMap = new CachingMap<>();
 
@@ -730,11 +730,12 @@ public class DefaultDataValueSetService
                 continue;
             }
 
-            boolean invalidFuturePeriod = period.isFuture() && !dataElementOpenFuturePeriodsMap.get( dataElement.getUid(), () -> dataElement.getOpenFuturePeriods() > 0 );
-
-            if ( invalidFuturePeriod )
+            Period latestFuturePeriod = dataElementLatestFuturePeriodMap.get( dataElement.getUid(), () -> dataElement.getLatestOpenFuturePeriod() );
+            
+            if ( period.isAfter( latestFuturePeriod ) )
             {
-                summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Data element does not allow for future periods through data sets: " + dataElement.getUid() ) );
+                summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Period: " + 
+                    period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() ) );
                 continue;
             }
 
@@ -823,7 +824,7 @@ public class DefaultDataValueSetService
             }
 
             if ( strictOrgUnits && BooleanUtils.isFalse( dataElementOrgUnitMap.get( dataElement.getUid() + orgUnit.getUid(),
-                () -> dataElement.hasDataSetOrganisationUnit( orgUnit ) ) ) )
+                () -> orgUnit.hasDataElement( dataElement ) ) ) )
             {
                 summary.getConflicts().add( new ImportConflict( orgUnit.getUid(),
                     "Data element: " + dataElement.getUid() + " must be assigned through data sets to organisation unit: " + orgUnit.getUid() ) );
@@ -922,7 +923,7 @@ public class DefaultDataValueSetService
         summary.setDescription( "Import process completed successfully" );
 
         notifier.notify( id, INFO, "Import done", true ).addTaskSummary( id, summary );
-        clock.logTime( "Data value import done, total: " + totalCount + ", import: " + importCount + ", update: " + updateCount );
+        clock.logTime( "Data value import done, total: " + totalCount + ", import: " + importCount + ", update: " + updateCount + ", delete: " + deleteCount );
 
         dataValueSet.close();
 

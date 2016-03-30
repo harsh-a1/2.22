@@ -1395,7 +1395,21 @@ trackerCapture.controller('DataEntryController',
     };
     
     $scope.completeIncompleteEvent = function (inTableView, outerForm) {
-            
+        
+        if($scope.currentEvent.status !== 'COMPLETED'){
+            outerForm.$setSubmitted();
+            if(outerForm.$invalid){
+                var dialogOptions = {
+                    headerText: 'error',
+                    bodyText: 'form_invalid'
+                };                
+                
+                DialogService.showDialog({}, dialogOptions);
+                
+                return;
+            }
+        }
+
         var modalOptions;
         var modalDefaults = {};
         var dhis2Event = $scope.makeDhis2EventToUpdate();        
@@ -1585,7 +1599,7 @@ trackerCapture.controller('DataEntryController',
             closeButtonText: 'cancel',
             actionButtonText: 'delete',
             headerText: 'delete',
-            bodyText: 'are_you_sure_to_delete_event'
+            bodyText: 'are_you_sure_to_delete_event_with_audit'
         };
 
         ModalService.showModal({}, modalOptions).then(function (result) {

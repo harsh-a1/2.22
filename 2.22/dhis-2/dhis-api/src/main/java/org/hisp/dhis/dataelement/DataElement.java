@@ -35,6 +35,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.google.common.collect.Sets;
+
 import org.hisp.dhis.common.BaseDimensionalItemObject;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DimensionType;
@@ -46,9 +47,9 @@ import org.hisp.dhis.common.view.DetailedView;
 import org.hisp.dhis.common.view.DimensionalView;
 import org.hisp.dhis.common.view.ExportView;
 import org.hisp.dhis.dataset.DataSet;
+import org.hisp.dhis.dataset.comparator.DataSetApprovalFrequencyComparator;
 import org.hisp.dhis.dataset.comparator.DataSetFrequencyComparator;
 import org.hisp.dhis.option.OptionSet;
-import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.YearlyPeriodType;
@@ -233,6 +234,13 @@ public class DataElement
         return !list.isEmpty() ? list.get( 0 ) : null;
     }
 
+    public DataSet getApprovalDataSet()
+    {
+        List<DataSet> list = new ArrayList<>( dataSets );
+        Collections.sort( list, DataSetApprovalFrequencyComparator.INSTANCE );
+        return !list.isEmpty() ? list.get( 0 ) : null;
+    }
+    
     /**
      * Returns the category combinations associated with the data sets of this
      * data element.
@@ -263,23 +271,6 @@ public class DataElement
         }
 
         return categoryOptionCombos;
-    }
-
-    /**
-     * Indicates whether the data sets of this data element is associated with
-     * the given organisation unit.
-     */
-    public boolean hasDataSetOrganisationUnit( OrganisationUnit unit )
-    {
-        for ( DataSet dataSet : dataSets )
-        {
-            if ( dataSet.getSources().contains( unit ) )
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -337,6 +328,32 @@ public class DataElement
         }
 
         return maxOpenPeriods;
+    }
+    
+    /**
+     * Returns the latest period which is open for data input. Returns null if
+     * data set is not associated with any data sets.
+     * 
+     * @return the latest period which is open for data input.
+     */
+    public Period getLatestOpenFuturePeriod()
+    {        
+        int periods = getOpenFuturePeriods();
+        
+        PeriodType periodType = getPeriodType();
+        
+        if ( periodType != null )
+        {
+            Period period = periodType.createPeriod();
+            
+            // Rewind one as 0 open periods implies current period is locked
+            
+            period = periodType.getPreviousPeriod( period );
+        
+            return periodType.getNextPeriod( period, periods );
+        }
+        
+        return null;
     }
 
     /**

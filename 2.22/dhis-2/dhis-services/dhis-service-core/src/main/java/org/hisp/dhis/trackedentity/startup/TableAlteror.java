@@ -28,31 +28,29 @@ package org.hisp.dhis.trackedentity.startup;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import static org.hisp.dhis.program.ProgramExpression.OBJECT_PROGRAM_STAGE;
-import static org.hisp.dhis.program.ProgramExpression.OBJECT_PROGRAM_STAGE_DATAELEMENT;
-import static org.hisp.dhis.program.ProgramExpression.SEPARATOR_ID;
-import static org.hisp.dhis.program.ProgramExpression.SEPARATOR_OBJECT;
-
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.amplecode.quick.StatementHolder;
 import org.amplecode.quick.StatementManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.caseaggregation.CaseAggregationCondition;
-import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.program.ProgramExpression;
 import org.hisp.dhis.program.ProgramStageService;
 import org.hisp.dhis.system.startup.AbstractStartupRoutine;
+import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.hisp.dhis.program.ProgramExpression.*;
 
 /**
  * @author Chau Thu Tran
@@ -81,10 +79,10 @@ public class TableAlteror
 
     @Autowired
     private ProgramStageService programStageService;
-    
+
     @Autowired
     private DataElementService dataElementService;
-    
+
     // -------------------------------------------------------------------------
     // Action Implementation
     // -------------------------------------------------------------------------
@@ -157,7 +155,7 @@ public class TableAlteror
         executeSql( "update program set remindCompleted=false where remindCompleted is null" );
         executeSql( "UPDATE program SET skipoffline=false where skipoffline is null" );
         executeSql( "UPDATE program SET displayfrontpagelist=false where displayfrontpagelist is null" );
-        
+
         executeSql( "UPDATE programinstance SET followup=false where followup is null" );
 
         updateProgramInstanceStatus();
@@ -291,7 +289,7 @@ public class TableAlteror
 
         executeSql( "DROP SEQUENCE period_periodid_seq" );
         executeSql( "ALTER TABLE programstagesection DROP CONSTRAINT programstagesection_name_key" );
-        
+
         executeSql( "update eventreport set collapsedatadimensions = false where collapsedatadimensions is null" );
         executeSql( "update eventchart set collapsedatadimensions = false where collapsedatadimensions is null" );
 
@@ -301,29 +299,29 @@ public class TableAlteror
         executeSql( "alter table programindicator drop column valuetype" );
         executeSql( "alter table programindicator drop column rootdate" );
         executeSql( "alter table programindicator drop column eventoutputtype" );
-        
+
         executeSql( "ALTER TABLE programstage ALTER description TYPE text" );
-        
+
         executeSql( "update programindicator set displayinform = false where displayinform is null" );
-        
+
         executeSql( "drop index index_patientdatavalue" );
-        
+
         executeSql( "update program p set dataentryformid = (select dataentryformid from trackedentityform tf where tf.programid=p.programid limit 1)" );
         executeSql( "drop table trackedentityform" );
 
         executeSql( "alter table trackedentitydatavalue alter column storedby TYPE character varying(255)" );
         executeSql( "alter table datavalue alter column storedby TYPE character varying(255)" );
-        
+
         updateProgramStageList();
         updateProgramAttributeList();
-        
+
         updateFixedAttributeInCaseAggregate( "DEDATEDIFF", CaseAggregationCondition.MINUS_OPERATOR );
         executeSql( "update userroleauthorities set authority='F_ADD_TRACKED_ENTITY_FORM' where authority='F_TRACKED_ENTITY_FORM_ADD'" );
 
         updateProgramExpressionUid();
-        
+
         updatePropertiesChangeInCaseAggregate();
-        
+
         // TODO fix
         // executeSql( "DROP TABLE programstage_programindicators" );
     }
@@ -391,7 +389,7 @@ public class TableAlteror
             holder.close();
         }
     }
-    
+
     private void updatePropertiesChangeInCaseAggregate()
     {
         StatementHolder holder = statementManager.getHolder();
@@ -409,7 +407,7 @@ public class TableAlteror
                 expression = expression.replaceAll( "dateOfIncident", "incidentDate" );
                 expression = expression.replaceAll( "dateofincident", "incidentDate" );
                 expression = expression.replaceAll( "'", "''" );
-                
+
                 executeSql( "UPDATE caseaggregationcondition SET aggregationExpression='" + expression
                     + "'  WHERE caseaggregationconditionid=" + id );
             }
@@ -423,8 +421,8 @@ public class TableAlteror
             holder.close();
         }
     }
-  
-    
+
+
     private void updateProgramInstanceStatus()
     {
         // Set active status for events
@@ -479,13 +477,16 @@ public class TableAlteror
     {
         int exist = jdbcTemplate.queryForObject( "SELECT count(*) FROM trackedentity where name='Person'",
             Integer.class );
-        
+
         if ( exist == 0 )
         {
-            String id = statementBuilder.getAutoIncrementValue();
 
-            jdbcTemplate.execute( "INSERT INTO trackedentity(trackedentityid,uid, name, description) values(" + id
-                + ",'" + CodeGenerator.generateCode() + "','Person','Person')" );
+            String id = statementBuilder.getAutoIncrementValue();
+            String uid = "MCPQUTHX1Ze";
+            String date = DateUtils.getSqlDateString( new Date() );
+
+            jdbcTemplate.execute( "INSERT INTO trackedentity(trackedentityid,uid, code, created, lastupdated,name, description) values("
+                + id + ",'" + uid + "','Person','" + date + "','" + date + "','Person','Person')" );
 
             jdbcTemplate.execute( "UPDATE program SET trackedentityid="
                 + "  (SELECT trackedentityid FROM trackedentity where name='Person') where trackedentityid is null" );
@@ -498,7 +499,7 @@ public class TableAlteror
     private void updateProgramStageList()
     {
         int count = jdbcTemplate.queryForObject( "select count(*) from programstage where sort_order is null", Integer.class );
-        
+
         if ( count > 0 )
         {
             StatementHolder holder = statementManager.getHolder();
@@ -634,7 +635,7 @@ public class TableAlteror
             holder.close();
         }
     }
-    
+
     private int executeSql( String sql )
     {
         try
